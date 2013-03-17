@@ -3,14 +3,14 @@ import random
 from protoobjects import Bonus, Define
 
 
-@Define(0.1, 2, "speed.png")
+@Define(0.9, 3, "speed.png")
 class Speed(Bonus):
     def modify(self, p):
-        p.v *= 2.0  
+        p.v *= 2  
     def unmodify(self, p):
-        p.v /= 2.0
+        p.v /= 2
 
-@Define(0.1, 2, "slow.png")        
+@Define(0.1, 3, "slow.png")        
 class Slow(Bonus):
     def modify(self, p):
         p.v /= 2.0  
@@ -44,21 +44,21 @@ class Unknown(Bonus):
     def unmodify(self, p):
         return self.bonus.unmodify(p)
  
-@Define(0.1, 3, "thinner.png")
+@Define(0.9, 10, "thinner.png")
 class Thinner(Bonus):
     def modify(self, p):
         p.size /= 2.0  
     def unmodify(self, p):
         p.size *= 2.0
 
-@Define(0.1, 3, "thicker.png")
+@Define(0.9, 10, "thicker.png")
 class Thicker(Bonus):
     def modify(self, p):
         p.size *= 2.0  
     def unmodify(self, p):
         p.size /= 2.0
  
-@Define(0.9, 3, "square.png")
+@Define(0.1, 3, "square.png")
 class Square(Bonus):
     def modify(self, p):
         p.square += 1
@@ -73,8 +73,8 @@ class Square(Bonus):
  
         
 BonusList = [
-         Speed,
-         Slow,
+         Speed,Speed,Speed,Speed,
+         Slow,Slow,Slow,Slow,Slow,
          InvertControls,
          Unknown,
          Thinner,

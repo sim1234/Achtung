@@ -26,7 +26,7 @@ class Player:
     def __init__(self, color, px = 0, py = 0, a = 0, k_l = 0, k_r = 0):
         self.px = float(px)
         self.py = float(py)
-        self.size = 5
+        self.size = 3
         self.v = float(1.0)
         self.a = normaliserad(a)
         self.k_l = int(k_l)
@@ -48,7 +48,7 @@ class Player:
         self.alive = 1
         self.no = 0
         while len(self.bony):
-            self.delete_bon(-1)
+            self.delete_bon(len(self.bony) - 1)
         
     
     def move(self, dane):
@@ -62,9 +62,9 @@ class Player:
                     self.a += math.pi/2
             else:
                 if dane.tg.keys[self.k_l]:
-                    self.a -= 0.02
+                    self.a -= 0.02 * self.v ** 0.5
                 if dane.tg.keys[self.k_r]:
-                    self.a += 0.02 
+                    self.a += 0.02 * self.v ** 0.5
             self.a = normaliserad(self.a)
             #px, py = self.px, self.py
             t0, t1 = vxy(self.v, self.a)
@@ -87,7 +87,7 @@ class Player:
                 if t0 >= 0 and t1 >= 0 and t0 < dane.a_w and t1 < dane.a_h:
                     dane.tg.bufor.set_at((t0, t1), (0,255,0))
                     if dane.background.get_at((t0, t1)) != dane.bgcolor:
-                        print "lolz", dane.background.get_at((t0, t1)), t0, t1
+                        #print "lolz", dane.background.get_at((t0, t1)), t0, t1
                         self.alive = 0
             
             if not self.alive:
@@ -97,14 +97,18 @@ class Player:
                 self.no = random.randint(100, 800)
             if self.no > self.size * 10:
                 pkt = []
+                r0, r1 = vxy(self.v * 2.0, self.a)
                 t0, t1 = vxy(self.size, normaliserad(self.a + math.pi/2.0))
                 pkt.append((int(self.px + t0), int(self.py + t1)))
+                pkt.append((int(self.px + t0 - r0), int(self.py + t1 - r1)))
                 t0, t1 = vxy(self.size, normaliserad(self.a - math.pi/2.0))
+                
+                pkt.append((int(self.px + t0 - r0), int(self.py + t1 - r1)))
                 pkt.append((int(self.px + t0), int(self.py + t1)))
-                t0, t1 = vxy(self.size*math.sqrt(2), normaliserad(self.a - 3*math.pi/4.0))
-                pkt.append((int(self.px + t0), int(self.py + t1)))
-                t0, t1 = vxy(self.size*math.sqrt(2), normaliserad(self.a + 3*math.pi/4.0))
-                pkt.append((int(self.px + t0), int(self.py + t1)))        
+                #t0, t1 = vxy(self.size*math.sqrt(2), normaliserad(self.a - 3*math.pi/4.0))
+                #pkt.append((int(self.px + t0), int(self.py + t1)))
+                #t0, t1 = vxy(self.size*math.sqrt(2), normaliserad(self.a + 3*math.pi/4.0))
+                #pkt.append((int(self.px + t0), int(self.py + t1)))
                 pygame.gfxdraw.filled_polygon(dane.background, pkt, self.color)
                 #pygame.gfxdraw.filled_circle(dane.background, int(self.px), int(self.py), int(self.size), self.color)
                 #pygame.draw.circle(dane.background, self.color, (int(self.px), int(self.py)), int(self.size))
@@ -113,13 +117,23 @@ class Player:
             self.lr = dane.tg.keys[self.k_r]
     
     def add_bon(self, b):
-        self.bony.append(b)
-        b.modify(self)
+        if self.alive:
+            self.bony.append(b)
+            b.modify(self)
     
     def delete_bon(self, x):
-        #self.bony.pop(self.bony.index(b))
+        l = self.bony[x:]
+        l.reverse()
+        for b in l:
+            #print "u", b
+            b.unmodify(self)
         b = self.bony.pop(x)
-        b.unmodify(self)
+        #print "d", b
+        #b.unmodify(self)
+        l = self.bony[x:]
+        for b in l:
+            #print "m", b
+            b.modify(self)
         
     def check_bon(self):
         x = 0

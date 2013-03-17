@@ -23,7 +23,7 @@ class Bonus(object):
         return 0
         
     def colide(self, p):
-        if self.r + p.size > math.hypot(self.px - p.px, self.py - p.py):
+        if p.alive and self.r + p.size > math.hypot(self.px - p.px, self.py - p.py):
             return 1
         return 0
     

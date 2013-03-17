@@ -56,7 +56,7 @@ class RGame(GamePart):
                             if b.typ:
                                 for pp in self.players:
                                     pp.add_bon(b)
-                                p.delete_bon(-1)
+                                p.delete_bon(len(p.bony) - 1)
                             else:
                                 p.add_bon(b)
                             continue                        
@@ -82,14 +82,32 @@ class RGame(GamePart):
                     
             if sm <= 1:
                 self.background.fill(self.bgcolor)
+                self.bony = []
+                self.pause()
+                
+                
+                for x in self.players:
+                    if x.alive:
+                        font = pygame.font.Font(pygame.font.match_font('doesNotExist, Arial'), 20)
+                        fb = font.render("Win: " + str(x.color), True, (0,0,0), x.color)
+                        textRect = fb.get_rect()
+                        textRect.x = self.a_w/2-textRect.width/2
+                        textRect.y = self.a_h/2-textRect.height/2
+                        self.tg.bufor.blit(fb, textRect)
+                        self.tg.screen.blit(self.tg.bufor, (0,0))
+                        pygame.display.flip()
+                
+                
                 print "Wyniki:"
                 for p in self.players:
                     print p.color, ":", p.score
                     p.shuffle(self.a_w, self.a_h)
-                    self.bony = []
-                    self.pause()
-                    time.sleep(1)
-                    self.unpause()
+                    
+                
+                
+                
+                time.sleep(3)
+                self.unpause()
                     
         elif event.type == 26:
             self.bony.extend(AddBony(self.a_w, self.a_h))
