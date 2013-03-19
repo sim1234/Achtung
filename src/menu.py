@@ -313,9 +313,11 @@ class MainMenu(GamePart):
         
     def start(self, data):
         GamePart.start(self, data)
+        self.tg.sound.get("in_the_hall").play(-1)
         
     def stop(self):
         r = GamePart.stop(self)
+        self.tg.sound.get("in_the_hall").stop()
         for p in self.p:
             s = p.get_state()
             if s[3] and s[4]:

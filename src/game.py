@@ -4,6 +4,7 @@ import pygame
 from protoobjects import Return
 from rgame import RGame
 from menu import MainMenu
+from soundmgr import SoundMenager
 
 class Game(object):
     def __init__(self, a_w, a_h):
@@ -18,6 +19,7 @@ class Game(object):
         self.screen = pygame.display.get_surface() 
         self.bufor = pygame.Surface((a_w, a_h))
         self.fpsclock = pygame.time.Clock()
+        self.sound = SoundMenager(["in_the_hall.ogg"])
         self.parts = [RGame(self), MainMenu(self)]
     
     def printt(self, px, py, text, bit = None, size=10, color=(0,0,0), bgcolor=(200,200,200)):

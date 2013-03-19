@@ -36,22 +36,19 @@ class Unknown(Bonus):
         bl = BonusList[:]
         bl.pop(bl.index(Unknown))
         self.bonus = random.choice(bl)(maxpx, maxpy, typ)
-        #self.bonus.__init__(self, maxpx, maxpy, typ)
-        #self.modify = self.bonus.modify
-        #self.unmodify = self.bonus.unmodify
     def modify(self, p):
         return self.bonus.modify(p)
     def unmodify(self, p):
         return self.bonus.unmodify(p)
  
-@Define(0.9, 10, "thinner.png")
+@Define(0.1, 3, "thinner.png")
 class Thinner(Bonus):
     def modify(self, p):
         p.size /= 2.0  
     def unmodify(self, p):
         p.size *= 2.0
 
-@Define(0.9, 10, "thicker.png")
+@Define(0.9, 3, "thicker.png")
 class Thicker(Bonus):
     def modify(self, p):
         p.size *= 2.0  
@@ -64,28 +61,57 @@ class Square(Bonus):
         p.square += 1
     def unmodify(self, p):
         p.square -= 1
+
+@Define(0.9, 3, "walkingthroughwalls.png")
+class WalkingThroughWalls(Bonus):
+    def modify(self, p):
+        if self.typ:
+            self.game.wtwalls += 1
+        else:
+            p.wtwalls += 1
+    def unmodify(self, p):
+        if self.typ:
+            self.game.wtwalls -= 1
+        else:
+            p.wtwalls -= 1
  
+@Define(0.9, 10, "invulnerability.png")
+class Invulnerability(Bonus):
+    def __init__(self, maxpx, maxpy, game):
+        Bonus.__init__(self, maxpx, maxpy, game)
+        self.typ = 0
+    def modify(self, p):
+        p.invulnerability += 1
+    def unmodify(self, p):
+        p.invulnerability -= 1 
  
- 
- 
- 
+@Define(0.9, 0, "clear.png")
+class Clear(Bonus):
+    def __init__(self, maxpx, maxpy, game):
+        Bonus.__init__(self, maxpx, maxpy, game)
+        self.typ = 0
+    def modify(self, p):
+        self.game.background.fill(self.game.bgcolor)  
  
  
         
 BonusList = [
-         Speed,Speed,Speed,Speed,
-         Slow,Slow,Slow,Slow,Slow,
+         Speed,
+         Slow,
          InvertControls,
          Unknown,
          Thinner,
          Thicker,
          Square,
+         WalkingThroughWalls,
+         Invulnerability,
+         Clear,
          
          ]
 
-def AddBony(maxpx, maxpy):
+def AddBony(maxpx, maxpy, game):
     r = []
     for b in BonusList:
         if b.chance > random.random():
-            r.append(b(maxpx, maxpy, random.choice([0, 1])))
+            r.append(b(maxpx, maxpy, game))
     return r

@@ -15,6 +15,8 @@ class RGame(GamePart):
         self.background = pygame.Surface((self.a_w, self.a_h))
         self.bgcolor = (20,20,20, 255)
         self.mtim = 0 # timer
+        self.wtwalls = 0
+        self.wallthc = 4
         self.bony = []
         self.players = []
         
@@ -44,7 +46,7 @@ class RGame(GamePart):
         self.tg.bufor.blit(self.background, (0,0))
         
         atim = pygame.time.get_ticks()
-        while self.mtim < atim: # p�tla timer�w
+        while self.mtim < atim: # pętla timerów
             if self.mtim < atim:
                 for p in self.players:
                     p.move(self)
@@ -64,7 +66,8 @@ class RGame(GamePart):
                         
                 self.mtim += 10                   
             atim = pygame.time.get_ticks()
-        
+        if (not self.wtwalls) or pygame.time.get_ticks() % 600 < 300:
+            pygame.draw.rect(self.tg.bufor, (255,255,0), (0, 0, self.a_w, self.a_h), self.wallthc + 1)
         for p in self.players:
             p.rysuj(self.tg.bufor)
         for b in self.bony:
@@ -110,7 +113,7 @@ class RGame(GamePart):
                 self.unpause()
                     
         elif event.type == 26:
-            self.bony.extend(AddBony(self.a_w, self.a_h))
+            self.bony.extend(AddBony(self.a_w, self.a_h, self))
         
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:

@@ -1,17 +1,23 @@
 import pygame, time, math, random, os 
 
+
+def link_to_resource(p):
+    return os.path.join('..', 'data', p)
+
+
 class Bonus(object):
     r = 20
-    img_red = pygame.image.load(os.path.join('..', 'data', 'red.png'))
-    img_green = pygame.image.load(os.path.join('..', 'data', 'green.png'))
+    img_red = pygame.image.load(link_to_resource('red.png'))
+    img_green = pygame.image.load(link_to_resource('green.png'))
     img = None
     chance = 0.0
     duration = 0.0
     
-    def __init__(self, maxpx, maxpy, typ):
+    def __init__(self, maxpx, maxpy, game):
+        self.game = game
         self.px = random.randint(self.r, maxpx - self.r)
         self.py = random.randint(self.r, maxpy - self.r)
-        self.typ = typ # 0 - ja; 1 - inni
+        self.typ = random.choice([0, 1]) # 0 - ja; 1 - inni
         self.to = 0
         
     def active(self):
@@ -35,18 +41,24 @@ class Bonus(object):
             bit.blit(self.img_green, (self.px - self.r, self.py - self.r))
         bit.blit(self.img, (self.px - self.r, self.py - self.r))
         
-    def modify(self, p): #  override
+    def modify(self, p): # override
         pass
         
     def unmodify(self, p): # override
         pass
+    
+    #def modify_game(self, game): # override
+    #    pass
+    #
+    #def unmodify_game(self, game): # override
+    #    pass
 
 
 def Define(chance, duration, src):
     def f(o):
         o.chance = chance
         o.duration = duration 
-        o.img = pygame.image.load(os.path.join('..', 'data', src))
+        o.img = pygame.image.load(link_to_resource(src))
         return o
     return f
 

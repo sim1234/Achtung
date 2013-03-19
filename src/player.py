@@ -40,6 +40,8 @@ class Player:
         self.score = 0
         self.swichedctrl = 0
         self.square = 0
+        self.wtwalls = 0
+        self.invulnerability = 0
     
     def shuffle(self, maxpx, maxpy):
         self.a = random.uniform(0, 2*math.pi)
@@ -70,25 +72,32 @@ class Player:
             t0, t1 = vxy(self.v, self.a)
             self.px += t0
             self.py += t1
-            if self.px < 0:
-                self.px = dane.a_w
-            if self.px > dane.a_w:
-                self.px = 0 
-            if self.py < 0:
-                self.py = dane.a_h
-            if self.py > dane.a_h:
-                self.py = 0
-            for x in xrange(3):
-                n = math.sqrt(2)
-                if x == 1 or not self.square:
-                    n = 1
-                t0, t1 = vxy(self.size*n + (1.1 + 1.0/max(0.5, self.v))/2.0, self.a + (x - 1)*math.pi/4)
-                t0, t1 = int(self.px + t0), int(self.py + t1)
-                if t0 >= 0 and t1 >= 0 and t0 < dane.a_w and t1 < dane.a_h:
-                    dane.tg.bufor.set_at((t0, t1), (0,255,0))
-                    if dane.background.get_at((t0, t1)) != dane.bgcolor:
-                        #print "lolz", dane.background.get_at((t0, t1)), t0, t1
-                        self.alive = 0
+            
+            if self.wtwalls == 0 and dane.wtwalls == 0:
+                if self.px - self.size < dane.wallthc or self.px + self.size > dane.a_w - dane.wallthc or self.py - self.size < dane.wallthc or self.py + self.size > dane.a_h - dane.wallthc:
+                    self.alive = 0
+            else:
+                if self.px < 0:
+                    self.px = dane.a_w
+                if self.px > dane.a_w:
+                    self.px = 0 
+                if self.py < 0:
+                    self.py = dane.a_h
+                if self.py > dane.a_h:
+                    self.py = 0
+                    
+            if not self.invulnerability:
+                for x in xrange(3):
+                    n = math.sqrt(2)
+                    if x == 1 or not self.square:
+                        n = 1
+                    t0, t1 = vxy(self.size*n + (1.1 + 1.0/max(0.5, self.v))/2.0, self.a + (x - 1)*math.pi/4)
+                    t0, t1 = int(self.px + t0), int(self.py + t1)
+                    if t0 >= 0 and t1 >= 0 and t0 < dane.a_w and t1 < dane.a_h:
+                        dane.tg.bufor.set_at((t0, t1), (0,255,0))
+                        if dane.background.get_at((t0, t1)) != dane.bgcolor:
+                            #print "lolz", dane.background.get_at((t0, t1)), t0, t1
+                            self.alive = 0
             
             if not self.alive:
                 pygame.event.post(pygame.event.Event(self.DEATH, dead = self))
@@ -146,27 +155,30 @@ class Player:
                 
     
     def rysuj(self, bit):
-        clr = (200,200,0)
-        if self.swichedctrl:
-            clr = (0,0,255)
-        if self.square:
-            pkt = []
-            r = self.size * math.sqrt(2)
-            p4 = math.pi/4.0
-            t0, t1 = vxy(r, normaliserad(self.a - p4))
-            pkt.append((int(self.px + t0), int(self.py + t1)))
-            t0, t1 = vxy(r, normaliserad(self.a + p4))
-            pkt.append((int(self.px + t0), int(self.py + t1)))
-            t0, t1 = vxy(r, normaliserad(self.a + 3*p4))
-            pkt.append((int(self.px + t0), int(self.py + t1)))
-            t0, t1 = vxy(r, normaliserad(self.a - 3*p4))
-            pkt.append((int(self.px + t0), int(self.py + t1)))
-            pygame.gfxdraw.filled_polygon(bit, pkt, clr)
-            pygame.gfxdraw.aapolygon(bit, pkt, clr)
-            #pygame.draw.polygon(bit, clr, pkt)
-        else:
-            pygame.gfxdraw.filled_circle(bit, int(self.px), int(self.py), int(self.size), clr)
-            pygame.gfxdraw.aacircle(bit, int(self.px), int(self.py), int(self.size), clr)
+        if (not self.invulnerability) or pygame.time.get_ticks() % 600 < 300:
+            clr = (200,200,0)
+            if self.wtwalls:
+                clr = (255,50,50)
+            if self.swichedctrl:
+                clr = (0,0,255)
+            if self.square:
+                pkt = []
+                r = self.size * math.sqrt(2)
+                p4 = math.pi/4.0
+                t0, t1 = vxy(r, normaliserad(self.a - p4))
+                pkt.append((int(self.px + t0), int(self.py + t1)))
+                t0, t1 = vxy(r, normaliserad(self.a + p4))
+                pkt.append((int(self.px + t0), int(self.py + t1)))
+                t0, t1 = vxy(r, normaliserad(self.a + 3*p4))
+                pkt.append((int(self.px + t0), int(self.py + t1)))
+                t0, t1 = vxy(r, normaliserad(self.a - 3*p4))
+                pkt.append((int(self.px + t0), int(self.py + t1)))
+                pygame.gfxdraw.filled_polygon(bit, pkt, clr)
+                pygame.gfxdraw.aapolygon(bit, pkt, clr)
+                #pygame.draw.polygon(bit, clr, pkt)
+            else:
+                pygame.gfxdraw.filled_circle(bit, int(self.px), int(self.py), int(self.size), clr)
+                pygame.gfxdraw.aacircle(bit, int(self.px), int(self.py), int(self.size), clr)
             
         
         
