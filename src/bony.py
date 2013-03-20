@@ -1,3 +1,4 @@
+# coding: utf-8
 
 import random
 from protoobjects import Bonus, Define
@@ -29,7 +30,7 @@ class InvertControls(Bonus):
         p.ll, p.lr = p.lr, p.ll
         
         
-@Define(0.1, 3, "unknown.png")
+@Define(0.9, 3, "unknown.png")
 class Unknown(Bonus):
     def __init__(self, maxpx, maxpy, typ):
         Bonus.__init__(self, maxpx, maxpy, typ)

@@ -8,10 +8,7 @@ import pygame
 from game import Game
 
 def main():
-    gra = Game(1280, 720)
-    #gra = Game(640, 480)
-    #gra = Game(1440, 900)
-    
+    gra = Game()
     gra.play()
 
 if __name__ == "__main__": 

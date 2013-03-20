@@ -1,3 +1,4 @@
+# coding: utf-8
 
 import pygame, random, re
 from protoobjects import GamePart, CObj
@@ -298,10 +299,11 @@ class MainMenu(GamePart):
     def __init__(self, topgame):
         GamePart.__init__(self, topgame)
         self.g = []
-        self.g.append(CLabel("Lewo", (170, 50, 100, 40), 20, (255,255,255), (0,0,0)))
-        self.g.append(CLabel("Prawo", (290, 50, 100, 40), 20, (255,255,255), (0,0,0)))
-        self.g.append(CLabel("Kolor", (410, 50, 80, 40), 20, (255,255,255), (0,0,0)))
-        self.g.append(CButton(self.graj, "Graj", (1000, 650, 150, 40), 30, (255,255,255), (0,0,0)))
+        self.g.append(CLabel(self.tg.config.get("m_left", "Left", unicode), (170, 50, 100, 40), 20, (255,255,255), (0,0,0)))
+        self.g.append(CLabel(self.tg.config.get("m_right", "Right", unicode), (290, 50, 100, 40), 20, (255,255,255), (0,0,0)))
+        self.g.append(CLabel(self.tg.config.get("m_color", "Color", unicode), (410, 50, 80, 40), 20, (255,255,255), (0,0,0)))
+        self.g.append(CButton(self.wyjdz, self.tg.config.get("m_exit", "Exit", unicode), (1000, 580, 200, 50), 30, (255,255,255), (0,0,0)))
+        self.g.append(CButton(self.graj, self.tg.config.get("m_play", "Play", unicode), (1000, 650, 200, 50), 30, (255,255,255), (0,0,0)))
         #self.g.append(CTextBox((900, 100, 100, 40), maxchars = 55, text_size = 20))
         self.p = []
         for x in xrange(1, 11):
@@ -310,6 +312,9 @@ class MainMenu(GamePart):
     
     def graj(self):
         self.tg.ch_tryb(1)
+        
+    def wyjdz(self):
+        self.tg.ch_tryb(0)
         
     def start(self, data):
         GamePart.start(self, data)

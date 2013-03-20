@@ -1,8 +1,56 @@
+# coding: utf-8
+
 import pygame, time, math, random, os 
 
 
 def link_to_resource(p):
     return os.path.join('..', 'data', p)
+
+
+class Config(object):
+    def __init__(self, path = None):
+        self.data = {}
+        self.path = path
+        if path:
+            self.load(path)
+        
+    def load(self, path):
+        self.data = {}
+        for l in open(link_to_resource(path), "r"):
+            try:
+                t = l.split(":", 1)
+                if t[0]:
+                    self.data[t[0]] = t[1][:-1]
+            except Exception:
+                pass
+    
+    def save(self, path = None):
+        if path:
+            self.path = path
+        f = open(self.path, "w+")
+        for k, v in self.data.iteritems():
+            f.write(str(k) + ":" + str(v) + "\n")
+    
+    def add(self, k, d):
+        self.data[k] = d
+        
+    def has(self, k):
+        return self.data.has_key(k)
+    
+    def get(self, k, defv = None, typ = None):
+        try:
+            r = self.data[k]
+            print 250, r
+            if typ:
+                r = typ(r)
+                print 251, r
+            print 252, r
+            return r
+        except Exception:
+            if defv == None:
+                raise
+            return defv
+
 
 
 class Bonus(object):
