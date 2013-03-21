@@ -23,9 +23,10 @@ def vxy(v, a): # zwraca sk�adowe x i y wektora (pobiera jego d�ugo�� i k
 class Player:
     DEATH = 25
     
-    def __init__(self, color, px = 0, py = 0, a = 0, k_l = 0, k_r = 0):
+    def __init__(self, color, name, px = 0, py = 0, a = 0, k_l = 0, k_r = 0):
         self.px = float(px)
         self.py = float(py)
+        self.name = name
         self.size = 3
         self.v = float(1.0)
         self.a = normaliserad(a)
@@ -45,12 +46,13 @@ class Player:
     
     def shuffle(self, maxpx, maxpy):
         self.a = random.uniform(0, 2*math.pi)
-        self.px = random.randint(0, maxpx)
-        self.py = random.randint(0, maxpy)
+        self.px = random.randint(50, maxpx - 50)
+        self.py = random.randint(50, maxpy - 50)
         self.alive = 1
         self.no = 0
         while len(self.bony):
             self.delete_bon(len(self.bony) - 1)
+        return self
         
     
     def move(self, dane):
@@ -94,7 +96,7 @@ class Player:
                     t0, t1 = vxy(self.size*n + (1.1 + 1.0/max(0.5, self.v))/2.0, self.a + (x - 1)*math.pi/4)
                     t0, t1 = int(self.px + t0), int(self.py + t1)
                     if t0 >= 0 and t1 >= 0 and t0 < dane.a_w and t1 < dane.a_h:
-                        dane.tg.bufor.set_at((t0, t1), (0,255,0))
+                        #dane.tg.bufor.set_at((t0, t1), (0,255,0))
                         if dane.background.get_at((t0, t1)) != dane.bgcolor:
                             #print "lolz", dane.background.get_at((t0, t1)), t0, t1
                             self.alive = 0

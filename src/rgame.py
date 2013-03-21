@@ -5,13 +5,14 @@ import pygame, time
 from player import Player
 from bony import AddBony
 from protoobjects import GamePart
+from menu import CLabel, CButton
  
 
 
 class RGame(GamePart):
     def __init__(self, topgame):
         GamePart.__init__(self, topgame)
-        self.a_w, self.a_h = topgame.a_w, topgame.a_h
+        self.a_w, self.a_h = topgame.a_w - 300, topgame.a_h
         self.background = pygame.Surface((self.a_w, self.a_h))
         self.bgcolor = (20,20,20, 255)
         self.mtim = 0 # timer
@@ -19,27 +20,56 @@ class RGame(GamePart):
         self.wallthc = 4
         self.bony = []
         self.players = []
+        self.players2 = []
+        self.bexit = CButton(self.wyjdz, self.tg.config.get("m_exit", "Exit", unicode), (1000, 580, 200, 40), 30, (0,0,0), (100,100,100))
+        self.bpause = CButton(self.pause, self.tg.config.get("m_pause", "Pause", unicode), (1000, 630, 200, 40), 30, (0,0,0), (100,100,100))
+    
+    def wyjdz(self):
+        self.tg.ch_tryb(2)
         
+    
     def start(self, data):
         GamePart.start(self, data)
         self.background.fill(self.bgcolor)
         for k, v in data.get().iteritems():
-            self.players.append(Player(v[2], 200, 200, 1.0, v[3], v[4]))
+            self.players.append(Player(v[2], v[1], 200, 200, 1.0, v[3], v[4]).shuffle(self.a_w, self.a_h))
+        self.update_score()
         #self.players.append(Player((200,0,0), 200, 200, 1.0, pygame.K_LEFT, pygame.K_RIGHT))
         #self.players.append(Player((0,200,0), 200, 300, 1.0, pygame.K_a, pygame.K_d))
         #self.players.append(Player((0,0,200), 200, 300, 1.0, pygame.K_a, pygame.K_d))
         #self.players.append(Player((0,200,200), 200, 300, 1.0, pygame.K_a, pygame.K_d))
         self.unpause()
         
+    def update_score(self):
+        self.players2 = []
+        t = self.players[:]
+        def s(p1, p2):
+            if p2.score >= p1.score:
+                return p2.score > p1.score
+            return -1
+        t.sort(s)
+        x = 0
+        for p in t:
+            self.players2.append(CLabel(str(p.name), (1000, 10 + 30 * x, 200, 20), 20, p.color, (100,100,100)))
+            self.players2.append(CLabel(str(p.score), (1220, 10 + 30 * x, 40, 20), 20, p.color, (100,100,100)))
+            x += 1
+        
     def unpause(self):
         GamePart.unpause(self)
         pygame.time.set_timer(26, 1000)
         self.mtim = pygame.time.get_ticks()
+        self.bpause.set_text(self.tg.config.get("m_pause", "Pause", unicode))
+        self.bpause.oc = self.pause
+        print "unpaused"
+        
         
     def pause(self):
         GamePart.pause(self)
         pygame.time.set_timer(26, 0)
-        self.mtim = -2**30
+        self.mtim = 2**30
+        self.bpause.set_text(self.tg.config.get("m_unpause", "Unpause", unicode))
+        self.bpause.oc = self.unpause
+        print "paused"
     
     def frame(self):
         GamePart.frame(self)
@@ -72,9 +102,15 @@ class RGame(GamePart):
             p.rysuj(self.tg.bufor)
         for b in self.bony:
             b.draw(self.tg.bufor)
+        for l in self.players2:
+            l.blit(self.tg.bufor)
+        self.bexit.blit(self.tg.bufor)
+        self.bpause.blit(self.tg.bufor)
 
     def event(self, event):
         GamePart.event(self, event)
+        self.bexit.event(event)
+        self.bpause.event(event)
         if event.type == Player.DEATH:
             print "Dead", event.dead.color
             sm = 0
@@ -82,7 +118,7 @@ class RGame(GamePart):
                 if p.alive:
                     p.score += 1
                     sm += 1
-                    
+            self.update_score()
             if sm <= 1:
                 self.background.fill(self.bgcolor)
                 self.bony = []
@@ -108,7 +144,6 @@ class RGame(GamePart):
                     
                 
                 
-                
                 time.sleep(3)
                 self.unpause()
                     
@@ -117,15 +152,16 @@ class RGame(GamePart):
         
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
-                self.tg.ch_tryb(2)
-            
+                self.wyjdz()
+            if event.key == pygame.K_SPACE:
+                self.bpause.oc()
             
             
     def stop(self):
         r = GamePart.stop(self)
-        r.add("returned", "Nothing")
-        
-        self.bony = []
+        #r.add("returned", "Nothing")
         self.pause()
+        self.bony = []
         self.players = []
+        self.update_score()
         return r

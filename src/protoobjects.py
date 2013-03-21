@@ -16,20 +16,27 @@ class Config(object):
         
     def load(self, path):
         self.data = {}
-        for l in open(link_to_resource(path), "r"):
+        for l in open(path, "r"):
             try:
                 t = l.split(":", 1)
                 if t[0]:
-                    self.data[t[0]] = t[1][:-1]
+                    self.data[t[0]] = t[1][:-1].decode('UTF-8')
             except Exception:
                 pass
     
     def save(self, path = None):
+        keylist = self.data.keys()
+        keylist.sort()
         if path:
             self.path = path
         f = open(self.path, "w+")
-        for k, v in self.data.iteritems():
-            f.write(str(k) + ":" + str(v) + "\n")
+        f.write("Achtung config\n".encode('UTF-8'))
+        for k in keylist:
+            f.write(str(k).encode('UTF-8'))
+            f.write(":".encode('UTF-8'))
+            f.write(str(self.data[k]).encode('UTF-8'))
+            f.write("\n".encode('UTF-8'))
+        f.write("\n".encode('UTF-8'))
     
     def add(self, k, d):
         self.data[k] = d
@@ -39,14 +46,13 @@ class Config(object):
     
     def get(self, k, defv = None, typ = None):
         try:
+            if not self.data.has_key(k):
+                raise 
             r = self.data[k]
-            print 250, r
             if typ:
                 r = typ(r)
-                print 251, r
-            print 252, r
             return r
-        except Exception:
+        except:
             if defv == None:
                 raise
             return defv

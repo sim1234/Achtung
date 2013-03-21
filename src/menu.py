@@ -41,9 +41,9 @@ class CLabel(CObj):
         self.set_text(text)
     
     def set_text(self, text):
-        self.text = text
+        self.text = text.decode('UTF-8')
         font = pygame.font.Font(pygame.font.match_font('doesNotExist, Arial'), self.fsize)
-        fb = font.render(text, True, self.color, self.bgcolor)
+        fb = font.render(self.text, True, self.color, self.bgcolor)
         textRect = fb.get_rect()
         textRect.x = self.w/2-textRect.width/2
         textRect.y = self.h/2-textRect.height/2
@@ -155,7 +155,7 @@ class CTextBox(CObj):
         CObj.__init__(self)
         self.px, self.py, self.w, self.h = (px, py, w, h)
         self.on = 1
-        self.text = text
+        self.text = text.decode('UTF-8')
         self.maxchars = maxchars
         self.border = border
         self.color = color
@@ -189,7 +189,7 @@ class CTextBox(CObj):
             if event.key == pygame.K_BACKSPACE:
                 if len(self.text) > 0:
                     if self.selected:
-                        self.text = self.text[:-1]
+                        self.text = self.text.decode('UTF-8')[:-1].decode('UTF-8')
                         self.updatebit()
             elif event.key in (pygame.K_ESCAPE, pygame.K_RETURN):
                 self.selected = False
@@ -198,7 +198,10 @@ class CTextBox(CObj):
                 if self.selected:
                     if (self.anumber or not len(re.findall("\d", event.unicode))) and (self.aletter or not len(re.findall("[a-zA-Z]", event.unicode))) and (self.aspecial or len(re.findall("[0-9a-zA-Z]", event.unicode))):
                         if self.maxchars is None or len(self.text) < self.maxchars:
-                            self.text += event.unicode
+                            self.text += event.unicode#.decode('UTF-8')
+                            self.text.decode('UTF-8')
+                            #"".
+                            #self.text.join(event.unicode.decode('UTF-8'))
                             self.updatebit()    
     
     def blit(self, bit):
@@ -219,9 +222,9 @@ class CTextBox(CObj):
             if self.border:
                 pygame.draw.rect(self.bit, self.border, (self.px, self.py, self.w, self.h), 1)
         lt = 0
-        while self.font.size(self.text[lt:] + "|")[0] > self.w + 1:
+        while self.font.size((self.text[lt:] + "|").decode('UTF-8'))[0] > self.w + 1:
             lt += 1
-        ren = self.font.render(self.text[lt:], 1, self.color)
+        ren = self.font.render(self.text[lt:].decode('UTF-8'), 1, self.color)
         textRect = ren.get_rect()#topleft = (self.px, self.py))
         #textRect.x = self.w/2-textRect.width/2
         textRect.y = self.h/2-textRect.height/2
@@ -229,18 +232,19 @@ class CTextBox(CObj):
         self.bit.blit(ren, textRect)
     
     def get_text(self):
-        return self.text
+        return self.text.decode('UTF-8')
           
     
 class CPlayer(object):
-    def __init__(self, iid, px, py):
+    def __init__(self, idd, name, color, px, py):
         self.tryb = 0
-        self.id = iid
+        self.id = idd
+        self.name = str(name)
         #self.b = CButton(self.click, "Gracz " + str(iid), (px, py, 100, 40), 20, (255,255,255), (0,0,0))
-        self.b = CTextBox((px, py, 100, 40), (255,255,255), (0,0,0), (255,255,255), (100,100,100), 10, 20, "Gracz " + str(iid), 1, 1, 1)
+        self.b = CTextBox((px, py, 100, 40), (255,255,255), (0,0,0), (255,255,255), (100,100,100), None, 20, self.name, 1, 1, 1)
         self.l = CButton(self.click, "", (px + 120, py, 100, 40), 20, (255,255,255), (0,0,0))
         self.r = CButton(self.click, "", (px + 240, py, 100, 40), 20, (255,255,255), (0,0,0))
-        self.c = CColorPick((px + 360, py, 80, 40), bgcolor = (0,0,0))
+        self.c = CColorPick((px + 360, py, 80, 40), color = color, bgcolor = (0,0,0))
         self.kl = None
         self.kr = None
         
@@ -293,6 +297,10 @@ class CPlayer(object):
     def get_state(self):
         return (self.id, self.b.get_text(), self.c.get_color(), self.kl, self.kr)
     
+
+def clr(s):
+    t = s.split(",")
+    return (int(t[0]), int(t[1]), int(t[2]))
         
         
 class MainMenu(GamePart):
@@ -307,7 +315,7 @@ class MainMenu(GamePart):
         #self.g.append(CTextBox((900, 100, 100, 40), maxchars = 55, text_size = 20))
         self.p = []
         for x in xrange(1, 11):
-            self.p.append(CPlayer(x, 50, x*60 + 50))
+            self.p.append(CPlayer(x, self.tg.config.get("g" + str(x) + "n", "Player" + str(x), unicode), self.tg.config.get("g" + str(x) + "c", None, clr), 50, x*60 + 50))
         
     
     def graj(self):
@@ -318,13 +326,17 @@ class MainMenu(GamePart):
         
     def start(self, data):
         GamePart.start(self, data)
+        pygame.key.set_repeat(500, 100)
         self.tg.sound.get("in_the_hall").play(-1)
         
     def stop(self):
         r = GamePart.stop(self)
+        pygame.key.set_repeat()
         self.tg.sound.get("in_the_hall").stop()
         for p in self.p:
             s = p.get_state()
+            self.tg.config.add("g" + str(s[0]) + "n", s[1])
+            self.tg.config.add("g" + str(s[0]) + "c", str(s[2][0]) + "," + str(s[2][1]) + "," + str(s[2][2]))
             if s[3] and s[4]:
                 r.add(s[0], s)
         return r

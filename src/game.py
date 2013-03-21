@@ -1,7 +1,7 @@
 # coding: utf-8
 
 import pygame
-from protoobjects import Return, Config
+from protoobjects import Return, Config, link_to_resource
 from rgame import RGame
 from menu import MainMenu
 from soundmgr import SoundMenager
@@ -9,7 +9,7 @@ from soundmgr import SoundMenager
 class Game(object):
     def __init__(self):
         pygame.init()
-        self.config = Config("config.cfg")
+        self.config = Config(link_to_resource("config.cfg"))
         self.a_w = self.config.get("width", 640, int)
         self.a_h = self.config.get("height", 480, int)
         self.tryb = 0
@@ -70,6 +70,7 @@ class Game(object):
         while self.tryb:
             self.parts[self.tryb - 1].frame()
             self.endframe()
+        self.config.save()
 
     def ch_tryb(self, nt):
         r = Return()
