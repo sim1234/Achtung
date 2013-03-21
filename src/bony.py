@@ -1,10 +1,11 @@
 # coding: utf-8
 
-import random
+import random, math, pygame
 from protoobjects import Bonus, Define
+from player import vxy
 
 
-@Define(0.9, 3, "speed.png")
+@Define(0.1, 3, "speed.png")
 class Speed(Bonus):
     def modify(self, p):
         p.v *= 2  
@@ -30,7 +31,7 @@ class InvertControls(Bonus):
         p.ll, p.lr = p.lr, p.ll
         
         
-@Define(0.9, 3, "unknown.png")
+@Define(0.1, 3, "unknown.png")
 class Unknown(Bonus):
     def __init__(self, maxpx, maxpy, typ):
         Bonus.__init__(self, maxpx, maxpy, typ)
@@ -49,7 +50,7 @@ class Thinner(Bonus):
     def unmodify(self, p):
         p.size *= 2.0
 
-@Define(0.9, 3, "thicker.png")
+@Define(0.1, 3, "thicker.png")
 class Thicker(Bonus):
     def modify(self, p):
         p.size *= 2.0  
@@ -76,7 +77,7 @@ class WalkingThroughWalls(Bonus):
         else:
             p.wtwalls -= 1
  
-@Define(0.9, 10, "invulnerability.png")
+@Define(0.1, 10, "invulnerability.png")
 class Invulnerability(Bonus):
     def __init__(self, maxpx, maxpy, game):
         Bonus.__init__(self, maxpx, maxpy, game)
@@ -86,13 +87,30 @@ class Invulnerability(Bonus):
     def unmodify(self, p):
         p.invulnerability -= 1 
  
-@Define(0.9, 0, "clear.png")
+@Define(0.1, 0, "clear.png")
 class Clear(Bonus):
     def __init__(self, maxpx, maxpy, game):
         Bonus.__init__(self, maxpx, maxpy, game)
         self.typ = 0
     def modify(self, p):
-        self.game.background.fill(self.game.bgcolor)  
+        self.game.background.fill(self.game.bgcolor) 
+        
+        
+@Define(0.9, 0, "laser.png")
+class Laser(Bonus):
+    def __init__(self, maxpx, maxpy, game):
+        Bonus.__init__(self, maxpx, maxpy, game)
+        self.typ = 0
+    def modify(self, p):
+        pkt = []
+        r0, r1 = vxy(1500, p.a)
+        t0, t1 = vxy(200, p.a + math.pi/2.0)
+        pkt.append((int(p.px + t0 / 10.0), int(p.py + t1 / 10.0)))
+        pkt.append((int(p.px + t0 + r0), int(p.py + t1 + r1)))
+        t0, t1 = vxy(200, p.a - math.pi/2.0)
+        pkt.append((int(p.px + t0 + r0), int(p.py + t1 + r1)))
+        pkt.append((int(p.px + t0 / 10.0), int(p.py + t1 / 10.0)))
+        pygame.gfxdraw.filled_polygon(self.game.background, pkt, self.game.bgcolor)
  
  
         
@@ -107,6 +125,7 @@ BonusList = [
          WalkingThroughWalls,
          Invulnerability,
          Clear,
+         Laser,
          
          ]
 
