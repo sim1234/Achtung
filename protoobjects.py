@@ -4,8 +4,16 @@ import pygame, time, math, random, os
 
 
 def link_to_resource(p):
-    return os.path.join('..', 'data', p)
+    return os.path.join('data', p)
 
+def tuc(s):
+    try:
+        return unicode(s, "UTF-8")
+    except:
+        try:
+            return str(s)
+        except:
+            return s
 
 class Config(object):
     def __init__(self, path = None):
@@ -20,7 +28,7 @@ class Config(object):
             try:
                 t = l.split(":", 1)
                 if t[0]:
-                    self.data[t[0]] = t[1][:-1].decode('UTF-8')
+                    self.data[t[0]] = tuc(t[1][:-1]) # t[1][:-1].decode('UTF-8')
             except Exception:
                 pass
     
@@ -32,9 +40,9 @@ class Config(object):
         f = open(self.path, "w+")
         f.write("Achtung config\n".encode('UTF-8'))
         for k in keylist:
-            f.write(str(k).encode('UTF-8'))
+            f.write(tuc(k).encode('UTF-8'))
             f.write(":".encode('UTF-8'))
-            f.write(str(self.data[k]).encode('UTF-8'))
+            f.write(tuc(self.data[k]).encode('UTF-8'))
             f.write("\n".encode('UTF-8'))
         f.write("\n".encode('UTF-8'))
     
@@ -136,7 +144,7 @@ class Return(object):
     def __repr__(self):
         r = "<Return object with parameters:"
         for k, v in self.data.iteritems():
-            r += " " + str(k) + ":" + str(v) + ";"
+            r += " " + tuc(k) + ":" + tuc(v) + ";"
         r += ">"
         return r
             

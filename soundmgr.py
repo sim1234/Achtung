@@ -5,6 +5,7 @@ from protoobjects import link_to_resource
 class SoundMenager(object):
     def __init__(self, lista):
         pygame.mixer.init()
+        pygame.mixer.init()
         self.sounds = {}
         for p in lista:
             try:

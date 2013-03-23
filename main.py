@@ -4,7 +4,7 @@ Created on 01-03-2013
 
 @author: Szymon
 '''
-import pygame
+
 from game import Game
 
 def main():

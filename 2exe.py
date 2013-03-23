@@ -5,20 +5,40 @@ try:
     import glob, fnmatch
     import sys, os, shutil
     import operator
+    import re
 except ImportError, message:
     raise SystemExit,  "Unable to load module. %s" % message
 
 pygame.font.init()
 
+
+def find_pygame_dlls():
+    dlls = []
+    pygamedir = os.path.split(pygame.base.__file__)[0]
+    for r,d,f in os.walk(pygamedir):
+        for files in f:
+            if files.lower().endswith(".dll"):
+                dlls.append(os.path.join(r, files))
+    #l = os.path.join(pygamedir, "libogg-0.dll")
+    #if not l in dlls:
+    #    dlls.append(l)
+    return dlls
+
+PYGAME_DLLS = find_pygame_dlls()
+
 #hack which fixes the pygame mixer and pygame font
 origIsSystemDLL = py2exe.build_exe.isSystemDLL # save the orginal before we edit it
 def isSystemDLL(pathname):
     # checks if the freetype and ogg dll files are being included
-    if os.path.basename(pathname).lower() in ("libfreetype-6.dll", "libogg-0.dll", "msvcp71.dll", "dwmapi.dll", "SDL_ttf.dll"):#, "SDL_ttf.dll"):
-            return 0
+
+    if (pathname in PYGAME_DLLS) or re.match(".*python\d\d\.dll$", pathname):#("libfreetype-6.dll", "libogg-0.dll", "msvcp71.dll", "dwmapi.dll", "SDL_ttf.dll"):#, "SDL_ttf.dll"):        
+        return 0
+    elif pathname.lower().startswith("c:\\windows"):
+        return 1
     return origIsSystemDLL(pathname) # return the orginal function
 py2exe.build_exe.isSystemDLL = isSystemDLL # override the default function with this one
- 
+
+
 class pygame2exe(py2exe.build_exe.py2exe): #This hack make sure that pygame default font is copied: no need to modify code for specifying default font
     def copy_extensions(self, extensions):
         #Get pygame default font
@@ -27,11 +47,16 @@ class pygame2exe(py2exe.build_exe.py2exe): #This hack make sure that pygame defa
  
         #Add font to list of extension to be copied
         extensions.append(Module("pygame.font", pygame_default_font))
-        extensions.append(Module("pygame", os.path.join(pygamedir, 'SDL.dll')))
-        extensions.append(Module("pygame", os.path.join(pygamedir, 'SDL_ttf.dll')))
-        os.path.join(pygamedir, pygame.font.get_default_font())
-        os.path.join(pygamedir, 'SDL.dll')
-        os.path.join(pygamedir, 'SDL_ttf.dll')
+        
+        # Copy all pygame dll's
+        for dll in PYGAME_DLLS:
+            try:
+                m = Module("pygame", dll)
+                m.__pydfile__ = ".".join(dll.split(".")[:-1]) + ".pyd"
+                extensions.append(m)
+            except Exception:
+                print "Warning, couldn't load", dll
+            
         py2exe.build_exe.py2exe.copy_extensions(self, extensions)
  
 class BuildExe:
@@ -43,30 +68,25 @@ class BuildExe:
         self.project_name = "Achtung"
  
         #Project url
-        self.project_url = "about:none"
+        self.project_url = "None"
  
         #Version of program
-        self.project_version = "0.0"
+        self.project_version = "0.1"
  
         #License of the program
-        self.license = "None"
+        self.license = "Open"
  
         #Auhor of program
-        self.author_name = "Me"
+        self.author_name = "Sim1234"
         self.author_email = "None"
-        self.copyright = "Copyright (c) 2013 Me"
+        self.copyright = "None"
  
         #Description
-        self.project_description = "None"
+        self.project_description = "Simple 2D game"
  
         #Icon file (None will use pygame default icon)
         self.icon_file = None
-        
-        pygamedir = os.path.split(pygame.base.__file__)[0]
-        os.path.join(pygamedir, pygame.font.get_default_font())
-        os.path.join(pygamedir, 'SDL.dll')
-        os.path.join(pygamedir, 'SDL_ttf.dll')
- 
+         
         #Extra files/dirs copied to game
         self.extra_datas = ['data']
  
@@ -80,10 +100,10 @@ class BuildExe:
         self.extra_scripts = []
  
         #Zip file name (None will bundle files in exe instead of zip file)
-        self.zipfile_name = "data.zip"#"sdl.zip"
+        self.zipfile_name = "gamedata.dll"#"sdl.zip"
  
         #Dist directory
-        self.dist_dir = '../compilation'
+        #self.dist_dir = 'dist'
  
     ## Code from DistUtils tutorial at http://wiki.python.org/moin/Distutils/Tutorial
     ## Originally borrowed from wxPython's setup and config files
@@ -120,8 +140,9 @@ class BuildExe:
         return file_list
  
     def run(self):
-        if os.path.isdir(self.dist_dir): #Erase previous destination dir
-            shutil.rmtree(self.dist_dir)
+        if os.path.isdir("dist"): #Erase previous destination dir
+            print "Removing", os.path.abspath("dist")
+            shutil.rmtree("dist")
         
         #Use the default pygame icon, if none given
         if self.icon_file == None:
@@ -136,7 +157,8 @@ class BuildExe:
             else:
                 extra_datas.append(('.', [data]))
         extra_datas.append(('.', glob.glob('*.dll')))
-        self.extra_modules += [ "pygame.font", "pygame", "pygame._view"]
+        extra_datas.append(('.', PYGAME_DLLS))
+        self.extra_modules += [ "pygame.font", "pygame", "pygame._view", "pygame.mixer"]
         
         setup(
             cmdclass = {'py2exe': pygame2exe},
@@ -160,14 +182,16 @@ class BuildExe:
                                   'includes': self.extra_scripts} },
             zipfile = self.zipfile_name,
             data_files = extra_datas,
-            dist_dir = self.dist_dir
+            #dist_dir = self.dist_dir
             )
         
         if os.path.isdir('build'): #Clean up build dir
+            print "Removing", os.path.abspath("build")
             shutil.rmtree('build')
  
 if __name__ == '__main__':
     if operator.lt(len(sys.argv), 2):
         sys.argv.append('py2exe')
     BuildExe().run() #Run generation
-    raw_input("Press any key to continue") #Pause to let user see that things ends 
+    print "Done!"
+    #raw_input("Press any key to continue") #Pause to let user see that things ends 

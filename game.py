@@ -1,13 +1,14 @@
 # coding: utf-8
 
 import pygame
-from protoobjects import Return, Config, link_to_resource
+from protoobjects import Return, Config, link_to_resource, tuc
 from rgame import RGame
 from menu import MainMenu
 from soundmgr import SoundMenager
 
 class Game(object):
     def __init__(self):
+        pygame.mixer.pre_init(44100, -16, 2, 1024)
         pygame.init()
         self.config = Config(link_to_resource("config.cfg"))
         self.a_w = self.config.get("width", 640, int)
@@ -20,7 +21,7 @@ class Game(object):
             self.window = pygame.display.set_mode((self.a_w, self.a_h), pygame.FULLSCREEN)
         else:
             self.window = pygame.display.set_mode((self.a_w, self.a_h))
-        pygame.display.set_caption(self.config.get("caption", "Game", unicode)) 
+        pygame.display.set_caption(self.config.get("caption", "Game", tuc)) 
         self.screen = pygame.display.get_surface() 
         self.bufor = pygame.Surface((self.a_w, self.a_h))
         self.fpsclock = pygame.time.Clock()
@@ -57,7 +58,7 @@ class Game(object):
                     self.parts[self.tryb - 1].event(event)
                 
         if self.keys[pygame.K_BACKQUOTE]:
-            self.printt(self.a_w-18, self.a_h-10, str(int(self.fpsclock.get_fps())))
+            self.printt(self.a_w-18, self.a_h-10, tuc(int(self.fpsclock.get_fps())))
 
         self.screen.blit(self.bufor, (0,0))
         pygame.display.flip()

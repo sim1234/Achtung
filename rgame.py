@@ -4,7 +4,7 @@ import pygame, time
 #from pygame.locals import * 
 from player import Player
 from bony import AddBony
-from protoobjects import GamePart
+from protoobjects import GamePart, tuc
 from menu import CLabel, CButton
  
 
@@ -21,8 +21,8 @@ class RGame(GamePart):
         self.bony = []
         self.players = []
         self.players2 = []
-        self.bexit = CButton(self.wyjdz, self.tg.config.get("m_exit", "Exit", unicode), (1000, 580, 200, 40), 30, (0,0,0), (100,100,100))
-        self.bpause = CButton(self.pause, self.tg.config.get("m_pause", "Pause", unicode), (1000, 630, 200, 40), 30, (0,0,0), (100,100,100))
+        self.bexit = CButton(self.wyjdz, self.tg.config.get("m_exit", "Exit", tuc), (1000, 580, 200, 40), 30, (0,0,0), (100,100,100))
+        self.bpause = CButton(self.pause, self.tg.config.get("m_pause", "Pause", tuc), (1000, 630, 200, 40), 30, (0,0,0), (100,100,100))
     
     def wyjdz(self):
         self.tg.ch_tryb(2)
@@ -50,15 +50,15 @@ class RGame(GamePart):
         t.sort(s)
         x = 0
         for p in t:
-            self.players2.append(CLabel(str(p.name), (1000, 10 + 30 * x, 200, 20), 20, p.color, (100,100,100)))
-            self.players2.append(CLabel(str(p.score), (1220, 10 + 30 * x, 40, 20), 20, p.color, (100,100,100)))
+            self.players2.append(CLabel(tuc(p.name), (1000, 10 + 30 * x, 200, 20), 20, p.color, (100,100,100)))
+            self.players2.append(CLabel(tuc(p.score), (1220, 10 + 30 * x, 40, 20), 20, p.color, (100,100,100)))
             x += 1
         
     def unpause(self):
         GamePart.unpause(self)
         pygame.time.set_timer(26, 1000)
         self.mtim = pygame.time.get_ticks()
-        self.bpause.set_text(self.tg.config.get("m_pause", "Pause", unicode))
+        self.bpause.set_text(self.tg.config.get("m_pause", "Pause", tuc))
         self.bpause.oc = self.pause
         print "unpaused"
         
@@ -67,7 +67,7 @@ class RGame(GamePart):
         GamePart.pause(self)
         pygame.time.set_timer(26, 0)
         self.mtim = 2**30
-        self.bpause.set_text(self.tg.config.get("m_unpause", "Unpause", unicode))
+        self.bpause.set_text(self.tg.config.get("m_unpause", "Unpause", tuc))
         self.bpause.oc = self.unpause
         print "paused"
     
@@ -128,7 +128,7 @@ class RGame(GamePart):
                 for x in self.players:
                     if x.alive:
                         font = pygame.font.Font(pygame.font.match_font('doesNotExist, Arial'), 20)
-                        fb = font.render("Win: " + str(x.color), True, (0,0,0), x.color)
+                        fb = font.render("Win: " + tuc(x.color), True, (0,0,0), x.color)
                         textRect = fb.get_rect()
                         textRect.x = self.a_w/2-textRect.width/2
                         textRect.y = self.a_h/2-textRect.height/2
