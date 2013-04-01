@@ -26,7 +26,7 @@ class Game(object):
         self.bufor = pygame.Surface((self.a_w, self.a_h))
         self.fpsclock = pygame.time.Clock()
         
-        self.sound = SoundMenager(["in_the_hall.ogg"])
+        self.sound = SoundMenager(["in_the_hall.ogg", "death.ogg", "bonus.ogg"])
         self.parts = [RGame(self), MainMenu(self)]
     
     def printt(self, px, py, text, bit = None, size=10, color=(0,0,0), bgcolor=(200,200,200)):

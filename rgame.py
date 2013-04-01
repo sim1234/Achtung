@@ -113,6 +113,7 @@ class RGame(GamePart):
                     x = 0 # bony
                     while x < len(self.bony):
                         if self.bony[x].colide(p):
+                            self.tg.sound.get("bonus").play()
                             b = self.bony.pop(x)
                             if b.typ:
                                 for pp in self.players:
@@ -143,6 +144,7 @@ class RGame(GamePart):
         self.bpause.event(event)
         self.winner.event(event)
         if event.type == Player.DEATH:
+            self.tg.sound.get("death").play()
             print "Dead", event.dead.color
             sm = 0
             for p in self.players:
