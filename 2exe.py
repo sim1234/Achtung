@@ -157,8 +157,8 @@ class BuildExe:
             else:
                 extra_datas.append(('.', [data]))
         extra_datas.append(('.', glob.glob('*.dll')))
-        extra_datas.append(('.', PYGAME_DLLS))
-        self.extra_modules += [ "pygame.font", "pygame", "pygame._view", "pygame.mixer"]
+        #extra_datas.append(('.', PYGAME_DLLS))
+        self.extra_modules += [ "pygame.font", "pygame"]#, "pygame._view", "pygame.mixer"]
         
         setup(
             cmdclass = {'py2exe': pygame2exe},
@@ -176,7 +176,7 @@ class BuildExe:
                 'icon_resources': [(0, self.icon_file)],
                 'copyright': self.copyright
             }],
-            options = {'py2exe': {'optimize': 2, 'bundle_files': 3, 'compressed': True, \
+            options = {'py2exe': {'optimize': 2, 'bundle_files': 1, 'compressed': True, \
                                   'excludes': self.exclude_modules, 'packages': self.extra_modules, \
                                   'dll_excludes': self.exclude_dll,
                                   'includes': self.extra_scripts} },

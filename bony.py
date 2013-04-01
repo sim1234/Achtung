@@ -5,7 +5,7 @@ from protoobjects import Bonus, Define
 from player import vxy
 
 
-@Define(0.1, 3, "speed.png")
+@Define(0.3, 5, "speed.png")
 class Speed(Bonus):
     def modify(self, p):
         p.v *= 2  
@@ -19,7 +19,7 @@ class Slow(Bonus):
     def unmodify(self, p):
         p.v *= 2.0
 
-@Define(0.1, 3, "invert.png")
+@Define(0.1, 5, "invert.png")
 class InvertControls(Bonus):
     def modify(self, p):
         p.swichedctrl = not p.swichedctrl
@@ -38,33 +38,34 @@ class Unknown(Bonus):
         bl = BonusList[:]
         bl.pop(bl.index(Unknown))
         self.bonus = random.choice(bl)(maxpx, maxpy, typ)
+        self.duration = self.bonus.duration
     def modify(self, p):
         return self.bonus.modify(p)
     def unmodify(self, p):
         return self.bonus.unmodify(p)
  
-@Define(0.1, 3, "thinner.png")
+@Define(0.1, 5, "thinner.png")
 class Thinner(Bonus):
     def modify(self, p):
         p.size /= 2.0  
     def unmodify(self, p):
         p.size *= 2.0
 
-@Define(0.1, 3, "thicker.png")
+@Define(0.3, 8, "thicker.png")
 class Thicker(Bonus):
     def modify(self, p):
         p.size *= 2.0  
     def unmodify(self, p):
         p.size /= 2.0
  
-@Define(0.1, 3, "square.png")
+@Define(0.1, 5, "square.png")
 class Square(Bonus):
     def modify(self, p):
         p.square += 1
     def unmodify(self, p):
         p.square -= 1
 
-@Define(0.9, 3, "walkingthroughwalls.png")
+@Define(0.3, 8, "walkingthroughwalls.png")
 class WalkingThroughWalls(Bonus):
     def modify(self, p):
         if self.typ:
@@ -77,7 +78,7 @@ class WalkingThroughWalls(Bonus):
         else:
             p.wtwalls -= 1
  
-@Define(0.1, 10, "invulnerability.png")
+@Define(0.3, 8, "invulnerability.png")
 class Invulnerability(Bonus):
     def __init__(self, maxpx, maxpy, game):
         Bonus.__init__(self, maxpx, maxpy, game)
@@ -87,7 +88,7 @@ class Invulnerability(Bonus):
     def unmodify(self, p):
         p.invulnerability -= 1 
  
-@Define(0.1, 0, "clear.png")
+@Define(0.05, 0, "clear.png")
 class Clear(Bonus):
     def __init__(self, maxpx, maxpy, game):
         Bonus.__init__(self, maxpx, maxpy, game)
@@ -96,7 +97,7 @@ class Clear(Bonus):
         self.game.background.fill(self.game.bgcolor) 
         
         
-@Define(0.9, 0, "laser.png")
+@Define(0.2, 0, "laser.png")
 class Laser(Bonus):
     def __init__(self, maxpx, maxpy, game):
         Bonus.__init__(self, maxpx, maxpy, game)

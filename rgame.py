@@ -3,7 +3,7 @@
 import pygame, time
 #from pygame.locals import * 
 from player import Player
-from bony import AddBony
+from bony import AddBony, Invulnerability, WalkingThroughWalls
 from protoobjects import GamePart, tuc
 from menu import CLabel, CButton
  
@@ -23,6 +23,7 @@ class RGame(GamePart):
         self.players2 = []
         self.bexit = CButton(self.wyjdz, self.tg.config.get("m_exit", "Exit", tuc), (1000, 580, 200, 40), 30, (0,0,0), (100,100,100))
         self.bpause = CButton(self.pause, self.tg.config.get("m_pause", "Pause", tuc), (1000, 630, 200, 40), 30, (0,0,0), (100,100,100))
+        self.winner = CLabel("Winn", (self.a_w / 2 - 100, self.a_h / 2 - 20, 200, 40), 30, (0,0,0), None)
     
     def wyjdz(self):
         self.tg.ch_tryb(2)
@@ -38,7 +39,9 @@ class RGame(GamePart):
         #self.players.append(Player((0,200,0), 200, 300, 1.0, pygame.K_a, pygame.K_d))
         #self.players.append(Player((0,0,200), 200, 300, 1.0, pygame.K_a, pygame.K_d))
         #self.players.append(Player((0,200,200), 200, 300, 1.0, pygame.K_a, pygame.K_d))
-        self.unpause()
+        #self.unpause()
+        self.tg.sound.get("in_the_hall").play(-1)
+        self.start_round()
         
     def update_score(self):
         self.players2 = []
@@ -53,6 +56,32 @@ class RGame(GamePart):
             self.players2.append(CLabel(tuc(p.name), (1000, 10 + 30 * x, 200, 20), 20, p.color, (100,100,100)))
             self.players2.append(CLabel(tuc(p.score), (1220, 10 + 30 * x, 40, 20), 20, p.color, (100,100,100)))
             x += 1
+    
+    def start_round(self):
+        self.winner.bgcolor = None
+        self.winner.set_text("")
+        self.pause()
+        self.bony = []
+        self.background.fill(self.bgcolor)
+        for p in self.players:
+            p.shuffle(self.a_w, self.a_h)
+            for b in (Invulnerability, WalkingThroughWalls):
+                bb = b(500, 500, self)
+                bb.typ = 0
+                bb.duration = 4
+                p.add_bon(bb)
+            for x in xrange(30):
+                p.move(self)
+        self.call_after(2000, self.unpause)
+        
+    def end_round(self):
+        self.pause()
+        for x in self.players:
+            if x.alive:
+                self.winner.bgcolor = x.color
+                self.winner.set_text(tuc(x.name))
+        self.call_after(2000, self.start_round)
+        
         
     def unpause(self):
         GamePart.unpause(self)
@@ -106,11 +135,13 @@ class RGame(GamePart):
             l.blit(self.tg.bufor)
         self.bexit.blit(self.tg.bufor)
         self.bpause.blit(self.tg.bufor)
+        self.winner.blit(self.tg.bufor)
 
     def event(self, event):
         GamePart.event(self, event)
         self.bexit.event(event)
         self.bpause.event(event)
+        self.winner.event(event)
         if event.type == Player.DEATH:
             print "Dead", event.dead.color
             sm = 0
@@ -120,32 +151,7 @@ class RGame(GamePart):
                     sm += 1
             self.update_score()
             if sm <= 1:
-                self.background.fill(self.bgcolor)
-                self.bony = []
-                self.pause()
-                
-                
-                for x in self.players:
-                    if x.alive:
-                        font = pygame.font.Font(pygame.font.match_font('doesNotExist, Arial'), 20)
-                        fb = font.render("Win: " + tuc(x.color), True, (0,0,0), x.color)
-                        textRect = fb.get_rect()
-                        textRect.x = self.a_w/2-textRect.width/2
-                        textRect.y = self.a_h/2-textRect.height/2
-                        self.tg.bufor.blit(fb, textRect)
-                        self.tg.screen.blit(self.tg.bufor, (0,0))
-                        pygame.display.flip()
-                
-                
-                print "Wyniki:"
-                for p in self.players:
-                    print p.color, ":", p.score
-                    p.shuffle(self.a_w, self.a_h)
-                    
-                
-                
-                time.sleep(3)
-                self.unpause()
+                self.end_round()
                     
         elif event.type == 26:
             self.bony.extend(AddBony(self.a_w, self.a_h, self))
@@ -159,6 +165,7 @@ class RGame(GamePart):
             
     def stop(self):
         r = GamePart.stop(self)
+        self.tg.sound.get("in_the_hall").stop()
         #r.add("returned", "Nothing")
         self.pause()
         self.bony = []

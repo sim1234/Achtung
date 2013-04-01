@@ -46,8 +46,8 @@ class Player:
     
     def shuffle(self, maxpx, maxpy):
         self.a = random.uniform(0, 2*math.pi)
-        self.px = random.randint(50, maxpx - 50)
-        self.py = random.randint(50, maxpy - 50)
+        self.px = random.randint(0, maxpx)
+        self.py = random.randint(0, maxpy)
         self.alive = 1
         self.no = 0
         while len(self.bony):

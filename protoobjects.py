@@ -1,6 +1,7 @@
 # coding: utf-8
 
-import pygame, time, math, random, os 
+import pygame, time, math, random, os
+from pipe import SubProces
 
 
 def link_to_resource(p):
@@ -11,7 +12,7 @@ def tuc(s):
         return unicode(s, "UTF-8")
     except:
         try:
-            return str(s)
+            return unicode(str(s), "UTF-8")
         except:
             return s
 
@@ -150,6 +151,7 @@ class Return(object):
             
 
 class GamePart(object):
+    CHSTATE = 27
     def __init__(self, topgame):
         self.tg = topgame
         self.paused = 0
@@ -170,7 +172,20 @@ class GamePart(object):
         pass
     
     def event(self, e):
-        pass
+        if e.type == self.CHSTATE:
+            e.fn()
+    
+    
+    def call_after(self, afterms, fn):
+        def f():
+            e = pygame.event.Event(self.CHSTATE, {"fn": fn})
+            #pygame.time.set_timer(eventid, milliseconds)
+            r = range(64)
+            while pygame.event.peek(r):
+                time.sleep(0.00001)
+                pygame.event.pump()
+            pygame.event.post(e)
+        SubProces(f, afterms)
     
     
 class CObj(object):

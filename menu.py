@@ -41,10 +41,7 @@ class CLabel(CObj):
         self.set_text(text)
     
     def set_text(self, text):
-        try:
-            self.text = tuc(text) # text.decode('UTF-8')
-        except:
-            self.text = text
+        self.text = tuc(text) # text.decode('UTF-8')
         font = pygame.font.Font(pygame.font.match_font('doesNotExist, Arial'), self.fsize)
         fb = font.render(self.text, True, self.color, self.bgcolor)
         textRect = fb.get_rect()
