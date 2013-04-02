@@ -23,7 +23,8 @@ class RGame(GamePart):
         self.players2 = []
         self.bexit = CButton(self.wyjdz, self.tg.config.get("m_exit", "Exit", tuc), (1000, 580, 200, 40), 30, (0,0,0), (100,100,100))
         self.bpause = CButton(self.pause, self.tg.config.get("m_pause", "Pause", tuc), (1000, 630, 200, 40), 30, (0,0,0), (100,100,100))
-        self.winner = CLabel("Winn", (self.a_w / 2 - 100, self.a_h / 2 - 20, 200, 40), 30, (0,0,0), None)
+        self.winner = CLabel("Winn", (self.a_w / 2 - 100, self.a_h / 2 - 20, 200, 40), 30, (0,0,0), (0,0,0,0))
+        
     
     def wyjdz(self):
         self.tg.ch_tryb(2)
@@ -58,7 +59,7 @@ class RGame(GamePart):
             x += 1
     
     def start_round(self):
-        self.winner.bgcolor = None
+        self.winner.bgcolor = (0,0,0,0)
         self.winner.set_text("")
         self.pause()
         self.bony = []
@@ -126,7 +127,7 @@ class RGame(GamePart):
                         
                 self.mtim += 10                   
             atim = pygame.time.get_ticks()
-        if (not self.wtwalls) or pygame.time.get_ticks() % 600 < 300:
+        if (not self.wtwalls) or pygame.time.get_ticks() % 660 < 330:
             pygame.draw.rect(self.tg.bufor, (255,255,0), (0, 0, self.a_w, self.a_h), self.wallthc + 1)
         for p in self.players:
             p.rysuj(self.tg.bufor)
