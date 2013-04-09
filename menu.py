@@ -50,7 +50,8 @@ class CLabel(CObj):
         self.bit = pygame.Surface((self.w, self.h), pygame.SRCALPHA)
         if self.bgcolor:
             self.bit.fill(self.bgcolor)
-        self.bit.blit(fb, textRect)
+        if text:
+            self.bit.blit(fb, textRect)
         #pygame.draw.rect(self.bit, (255,255,255), (0, 0, self.w-1, self.h-1), 2)
         
     def blit(self, bit):
@@ -316,6 +317,7 @@ class MainMenu(GamePart):
         self.p = []
         for x in xrange(1, 11):
             self.p.append(CPlayer(x, self.tg.config.get("g" + tuc(x) + "n", "Player" + tuc(x), tuc), self.tg.config.get("g" + tuc(x) + "c", None, clr), 50, x*60 + 50))
+        self.tg.sound.get("in_the_hall").play(-1)
         
     
     def graj(self):
@@ -327,12 +329,12 @@ class MainMenu(GamePart):
     def start(self, data):
         GamePart.start(self, data)
         pygame.key.set_repeat(500, 100)
-        self.tg.sound.get("in_the_hall").play(-1)
+        #self.tg.sound.get("in_the_hall").play(-1)
         
     def stop(self):
         r = GamePart.stop(self)
         pygame.key.set_repeat()
-        self.tg.sound.get("in_the_hall").stop()
+        #self.tg.sound.get("in_the_hall").stop()
         for p in self.p:
             s = p.get_state()
             self.tg.config.add("g" + tuc(s[0]) + "n", s[1])

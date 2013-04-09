@@ -16,6 +16,7 @@ class RGame(GamePart):
         self.background = pygame.Surface((self.a_w, self.a_h))
         self.bgcolor = (20,20,20, 255)
         self.mtim = 0 # timer
+        self.last_pause = 0
         self.wtwalls = 0
         self.wallthc = 4
         self.bony = []
@@ -23,8 +24,7 @@ class RGame(GamePart):
         self.players2 = []
         self.bexit = CButton(self.wyjdz, self.tg.config.get("m_exit", "Exit", tuc), (1000, 580, 200, 40), 30, (0,0,0), (100,100,100))
         self.bpause = CButton(self.pause, self.tg.config.get("m_pause", "Pause", tuc), (1000, 630, 200, 40), 30, (0,0,0), (100,100,100))
-        self.winner = CLabel("Winn", (self.a_w / 2 - 100, self.a_h / 2 - 20, 200, 40), 30, (0,0,0), (0,0,0,0))
-        
+        self.winner = CLabel("", (self.a_w / 2 - 100, self.a_h / 2 - 20, 200, 40), 30, (0,0,0), None)
     
     def wyjdz(self):
         self.tg.ch_tryb(2)
@@ -41,7 +41,7 @@ class RGame(GamePart):
         #self.players.append(Player((0,0,200), 200, 300, 1.0, pygame.K_a, pygame.K_d))
         #self.players.append(Player((0,200,200), 200, 300, 1.0, pygame.K_a, pygame.K_d))
         #self.unpause()
-        self.tg.sound.get("in_the_hall").play(-1)
+        #self.tg.sound.get("in_the_hall").play(-1)
         self.start_round()
         
     def update_score(self):
@@ -59,7 +59,7 @@ class RGame(GamePart):
             x += 1
     
     def start_round(self):
-        self.winner.bgcolor = (0,0,0,0)
+        self.winner.bgcolor = None
         self.winner.set_text("")
         self.pause()
         self.bony = []
@@ -90,7 +90,11 @@ class RGame(GamePart):
         self.mtim = pygame.time.get_ticks()
         self.bpause.set_text(self.tg.config.get("m_pause", "Pause", tuc))
         self.bpause.oc = self.pause
-        print "unpaused"
+        r = time.clock() - self.last_pause
+        for p in self.players:
+            for b in p.bony:
+                b.to += r
+        #print "unpaused"
         
         
     def pause(self):
@@ -99,7 +103,8 @@ class RGame(GamePart):
         self.mtim = 2**30
         self.bpause.set_text(self.tg.config.get("m_unpause", "Unpause", tuc))
         self.bpause.oc = self.unpause
-        print "paused"
+        self.last_pause = time.clock()
+        #print "paused"
     
     def frame(self):
         GamePart.frame(self)
@@ -114,7 +119,6 @@ class RGame(GamePart):
                     x = 0 # bony
                     while x < len(self.bony):
                         if self.bony[x].colide(p):
-                            self.tg.sound.get("bonus").play()
                             b = self.bony.pop(x)
                             if b.typ:
                                 for pp in self.players:
@@ -127,7 +131,7 @@ class RGame(GamePart):
                         
                 self.mtim += 10                   
             atim = pygame.time.get_ticks()
-        if (not self.wtwalls) or pygame.time.get_ticks() % 660 < 330:
+        if (not self.wtwalls) or pygame.time.get_ticks() % 600 < 300:
             pygame.draw.rect(self.tg.bufor, (255,255,0), (0, 0, self.a_w, self.a_h), self.wallthc + 1)
         for p in self.players:
             p.rysuj(self.tg.bufor)
@@ -145,7 +149,6 @@ class RGame(GamePart):
         self.bpause.event(event)
         self.winner.event(event)
         if event.type == Player.DEATH:
-            self.tg.sound.get("death").play()
             print "Dead", event.dead.color
             sm = 0
             for p in self.players:
@@ -168,7 +171,7 @@ class RGame(GamePart):
             
     def stop(self):
         r = GamePart.stop(self)
-        self.tg.sound.get("in_the_hall").stop()
+        #self.tg.sound.get("in_the_hall").stop()
         #r.add("returned", "Nothing")
         self.pause()
         self.bony = []
