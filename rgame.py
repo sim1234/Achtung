@@ -69,7 +69,7 @@ class RGame(GamePart):
             for b in (Invulnerability, WalkingThroughWalls):
                 bb = b(500, 500, self)
                 bb.typ = 0
-                bb.duration = 4
+                bb.duration = 2
                 p.add_bon(bb)
             for x in xrange(30):
                 p.move(self)
@@ -119,6 +119,7 @@ class RGame(GamePart):
                     x = 0 # bony
                     while x < len(self.bony):
                         if self.bony[x].colide(p):
+                            self.tg.sound.get("bonus").play()
                             b = self.bony.pop(x)
                             if b.typ:
                                 for pp in self.players:
@@ -131,7 +132,7 @@ class RGame(GamePart):
                         
                 self.mtim += 10                   
             atim = pygame.time.get_ticks()
-        if (not self.wtwalls) or pygame.time.get_ticks() % 600 < 300:
+        if (not self.wtwalls) or pygame.time.get_ticks() % 660 < 330:
             pygame.draw.rect(self.tg.bufor, (255,255,0), (0, 0, self.a_w, self.a_h), self.wallthc + 1)
         for p in self.players:
             p.rysuj(self.tg.bufor)
@@ -149,7 +150,8 @@ class RGame(GamePart):
         self.bpause.event(event)
         self.winner.event(event)
         if event.type == Player.DEATH:
-            print "Dead", event.dead.color
+            self.tg.sound.get("death").play()
+            #print "Dead", event.dead.color
             sm = 0
             for p in self.players:
                 if p.alive:
