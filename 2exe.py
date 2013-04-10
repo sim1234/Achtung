@@ -6,6 +6,10 @@ try:
     import sys, os, shutil
     import operator
     import re
+    #sys.path.append(os.path.abspath("../Pipe"))
+    #sys.path.append(os.path.abspath("../Updater"))
+    #sys.path.append(os.path.abspath("../Exec_server"))
+    #import pipe, server, client, msg
 except ImportError, message:
     raise SystemExit,  "Unable to load module. %s" % message
 
@@ -63,6 +67,8 @@ class BuildExe:
     def __init__(self):
         #Name of starting .py
         self.script = "main.py"
+        
+        self.script2 = "Update.py"
  
         #Name of program
         self.project_name = "Achtung"
@@ -175,7 +181,13 @@ class BuildExe:
                 'script': self.script,
                 'icon_resources': [(0, self.icon_file)],
                 'copyright': self.copyright
-            }],
+                }#,
+                #{
+                #'script': self.script2,
+                #'icon_resources': [(0, self.icon_file)],
+                #'copyright': self.copyright
+                #}
+                       ],
             options = {'py2exe': {'optimize': 2, 'bundle_files': 1, 'compressed': True, \
                                   'excludes': self.exclude_modules, 'packages': self.extra_modules, \
                                   'dll_excludes': self.exclude_dll,
