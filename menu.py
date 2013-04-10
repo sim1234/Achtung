@@ -32,7 +32,7 @@ class ClickArea(object):
         
 
 class CLabel(CObj):
-    def __init__(self, text, (px, py, w, h), fsize = 15, color = (0,0,0), bgcolor = None):
+    def __init__(self, text, (px, py, w, h), fsize = 15, color = (0,0,0), bgcolor = (0,0,0,0)):
         CObj.__init__(self)
         self.px, self.py, self.w, self.h = (px, py, w, h)
         self.fsize = fsize
@@ -63,7 +63,7 @@ class CLabel(CObj):
         
         
 class CButton(CLabel):
-    def __init__(self, OnClick, text, (px, py, w, h), fsize = 15, color = (0,0,0), bgcolor = None):
+    def __init__(self, OnClick, text, (px, py, w, h), fsize = 15, color = (0,0,0), bgcolor = (0,0,0,0)):
         CLabel.__init__(self, text, (px, py, w, h), fsize, color, bgcolor)
         self.oc = OnClick
         self.ca = ClickArea((px, py, w, h))
@@ -76,7 +76,7 @@ class CButton(CLabel):
 
 class CColorPick(CObj):
     SEQ = (0,64,128,192,255)
-    def __init__(self, (px, py, w, h), color = None, bgcolor = None):
+    def __init__(self, (px, py, w, h), color = None, bgcolor = (0,0,0,0)):
         CObj.__init__(self)
         self.px, self.py, self.w, self.h = (px, py, w, h)
         if not color:

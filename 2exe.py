@@ -188,6 +188,9 @@ class BuildExe:
         if os.path.isdir('build'): #Clean up build dir
             print "Removing", os.path.abspath("build")
             shutil.rmtree('build')
+        
+        print "Renaming main.exe"
+        os.rename("dist/main.exe", "dist/Achtung.exe")
  
 if __name__ == '__main__':
     if operator.lt(len(sys.argv), 2):
