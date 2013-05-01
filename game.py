@@ -23,7 +23,7 @@ class Game(object):
             self.window = pygame.display.set_mode((self.a_w, self.a_h))
         pygame.display.set_caption(self.config.get("caption", "Game", tuc)) 
         self.screen = pygame.display.get_surface() 
-        self.bufor = pygame.Surface((self.a_w, self.a_h))
+        self.bufor = pygame.Surface((self.a_w, self.a_h), pygame.HWSURFACE)
         self.fpsclock = pygame.time.Clock()
         
         self.sound = SoundMenager(["in_the_hall.ogg"])
