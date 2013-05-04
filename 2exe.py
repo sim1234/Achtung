@@ -106,7 +106,7 @@ class BuildExe:
         self.extra_scripts = []
  
         #Zip file name (None will bundle files in exe instead of zip file)
-        self.zipfile_name = "gamedata.dll"#"sdl.zip"
+        self.zipfile_name = None#"gamedata.dll"#"sdl.zip"
  
         #Dist directory
         #self.dist_dir = 'dist'
